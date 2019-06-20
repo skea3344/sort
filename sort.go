@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 // caibo
 // 手撕的排序算法
 // 选择排序、快速排序、希尔排序、堆排序不是稳定的排序算法，而冒泡排序、插入排序、归并排序和基数排序是稳定的排序算法。
@@ -118,5 +120,90 @@ func adjustHeap(arr []int, i int, length int) {
 	arr[i] = temp
 }
 
+// MergeSort 归并排序
+func MergeSort(arr []int) {
+	if len(arr) > 1 {
+		mid := len(arr) / 2
+		MergeSort(arr[:mid])
+		MergeSort(arr[mid:])
+		merge(arr, mid)
+	}
+}
 
-// 归并排序 
+// merge 归并排序
+func merge(arr []int, mid int) {
+	temp := make([]int, len(arr))
+	copy(temp, arr)
+	l, r := 0, mid
+	cur := 0
+	for l < mid && r < len(temp) {
+		if temp[l] <= temp[r] {
+			arr[cur] = temp[l]
+			l++
+		} else {
+			arr[cur] = temp[r]
+			r++
+		}
+		cur++
+	}
+	for l < mid {
+		arr[cur] = temp[l]
+		l++
+		cur++
+	}
+	for r < len(temp) {
+		arr[cur] = temp[r]
+		r++
+		cur++
+	}
+}
+
+// BucketSort 桶排序
+func BucketSort(arr []int) {
+	length := len(arr)
+	if length < 2 {
+		return
+	}
+	tmp := make([]int, 100001)
+	for i := 0; i < length; i++ {
+		tmp[arr[i]+50000]++
+	}
+	cur := 0
+	for i := 0; i < len(tmp); i++ {
+		for tmp[i] > 0 {
+			arr[cur] = i - 50000
+			cur++
+			tmp[i]--
+		}
+	}
+}
+
+// RadixSort 基数排序(正负数不能一起)
+func RadixSort(arr []int) {
+	length := len(arr)
+	if length < 2 {
+		return
+	}
+	d := 6
+	tmp := make([]int, length)
+	radix := 1
+	for i := 1; i <= d; i++ {
+		cnt := make([]int, 10)
+		for j := 0; j < length; j++ {
+			k := (arr[j] / radix) % 10
+			fmt.Println(k)
+			cnt[k]++
+		}
+		for j := 1; j < 10; j++ {
+			cnt[j] = cnt[j] + cnt[j-1]
+		}
+		// 这里从后面开始很重要 升序
+		for j := length - 1; j > 0; j-- {
+			k := (arr[j] / radix) % 10
+			tmp[cnt[k]-1] = arr[j]
+			cnt[k]--
+		}
+		copy(arr, tmp)
+		radix *= 10
+	}
+}
